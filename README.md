@@ -1,4 +1,4 @@
-#rabbitmq2psql-as-json
+# rabbitmq2psql-as-json
 
 rabbitmq2psql-as-json is ready to use, basic asynchronous RabbitMQ consumer job library for PostgreSQL. It stops when queue is empty, so it can be useful for cron jobs, unit tests, CI/CD environments and production environments has slow datastream.
 

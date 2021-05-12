@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import os
+import logging
+import asyncio
+from rabbitmq2psql_as_json import consume
+
+logger = logging.getLogger("rabbitmq2psql-as-json")
+logger.setLevel(os.environ.get('LOG_LEVEL', "DEBUG"))
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter(
+        os.environ.get('LOG_FORMAT', "%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    )
+)
+logger.addHandler(handler)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(consume(loop=loop, logger=logger))
+loop.close()
+
+

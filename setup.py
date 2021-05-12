@@ -29,5 +29,6 @@ setuptools.setup(
     ],
     install_requires=['psycopg2', 'aio_pika'],
     python_requires=">3.5.*, <4",
-    packages=['rabbitmq2psql-as-json']
+    packages=['rabbitmq2psql_as_json'],
+    scripts=['bin/rabbitmq2psql-as-json']
 )

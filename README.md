@@ -1,12 +1,19 @@
+
 # rabbitmq2psql-as-json
 
 rabbitmq2psql-as-json is ready to use, basic asynchronous RabbitMQ consumer job library for PostgreSQL. It stops when queue is empty, so it can be useful for cron jobs, unit tests, CI/CD environments and production environments has slow datastream.
 
+## Installation
+
+You can install this library easily with pip.
+`pip install rabbitmq2psql-as-json` 
+
 ## Usage
+### As a library
 ```py
 import os
 import asyncio
-from rabbitmq2psql-as-json import consume
+from rabbitmq2psql_as_json import consume
 
 if __name__ == '__main__':
     logger = logging.getLogger("rabbitmq2psql-as-json")
@@ -47,3 +54,28 @@ if __name__ == '__main__':
 
 loop.close()
 ```
+
+### Standalone
+You can also call this library as standalone consumer job command.  Just set required environment variables and run `rabbitmq2psql-as-json`. This usecase perfectly fits when you need run it on cronjobs or kubernetes jobs. 
+
+**Required environment variables:**
+- MQ_HOST
+- MQ_PORT (optional)
+- MQ_VHOST
+- MQ_USER
+- MQ_PASS
+- MQ_QUEUE
+- DB_HOST
+- DB_PORT (optional)
+- DB_USER
+- DB_PASS
+- DB_DATABASE
+- SQL_TEMPLATE (DB Insert query template. Ex: `insert into logs (body) values (%s);`)
+-  CONSUMER_POOL_SIZE (optional, default value: 10)
+-  LOG_LEVEL (Logging level. See: [Python logging module docs](https://docs.python.org/3/library/logging.html#logging-levels))
+
+**Example Kubernetes job:** 
+ ```yaml
+# TO DO: Add Kubernetes job here.
+ ```
+

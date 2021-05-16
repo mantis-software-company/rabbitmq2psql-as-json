@@ -22,13 +22,12 @@ setuptools.setup(
         "Operating System :: Microsoft",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
-    install_requires=['psycopg2', 'aio_pika'],
-    python_requires=">3.5.*, <4",
+    install_requires=['aiopg', 'aio_pika'],
+    python_requires=">3.6.*, <4",
     packages=['rabbitmq2psql_as_json'],
     scripts=['bin/rabbitmq2psql-as-json']
 )

@@ -1,7 +1,7 @@
 import aio_pika
+import aiopg
 import asyncio
 import os
-import psycopg2
 from aio_pika.pool import Pool
 
 
@@ -35,17 +35,15 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     logger.error("Invalid pool size: %s" % (consumer_pool_size,))
                 raise e
 
-    db_conn = psycopg2.connect(
+    db_pool = await aiopg.create_pool(
         host=config.get("db_host"),
         user=config.get("db_user"),
         password=config.get("db_pass"),
         database=config.get("db_database"),
-        port=config.get("db_port")
+        port=config.get("db_port"),
+        minsize=consumer_pool_size,
+        maxsize=consumer_pool_size * 2
     )
-
-    db_conn.autocommit = True
-
-    cursor = db_conn.cursor()
 
     async def get_connection():
         return await aio_pika.connect(
@@ -71,6 +69,9 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                 config.get("mq_queue"), durable=False, auto_delete=False
             )
 
+            db_conn = await db_pool.acquire()
+            cursor = await db_conn.cursor()
+
             while True:
                 try:
                     m = await queue.get(timeout=5 * consumer_pool_size)
@@ -82,10 +83,12 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     except Exception as e:
                         if logger:
                             logger.error("DB Error: %s" % (e,))
+                        db_conn.close()
                         raise e
                     else:
                         m.ack()
                 except aio_pika.exceptions.QueueEmpty:
+                    db_conn.close()
                     if logger:
                         logger.info("Queue empty. Stopping.")
                     break

@@ -80,11 +80,11 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     if logger:
                         logger.debug(message)
                     try:
-                        cursor.execute(sql_template, (message,))
+                        await cursor.execute(sql_template, (message,))
                     except Exception as e:
                         if logger:
                             logger.error("DB Error: %s" % (e,))
-                        db_conn.close()
+                        await db_conn.close()
                         raise e
                     else:
                         m.ack()

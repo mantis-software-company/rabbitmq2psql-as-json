@@ -1,9 +1,11 @@
 import aio_pika
 import aiopg
 import asyncio
+import json
 import os
 from aio_pika.pool import Pool
 from distutils.util import strtobool
+
 
 async def consume(loop, sql_template=None, logger=None, config=None, consumer_pool_size=10):
     if config is None:
@@ -78,7 +80,7 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     m = await queue.get(timeout=5 * consumer_pool_size)
                     message = m.body.decode('utf-8')
                     if logger:
-                        logger.debug(message)
+                        logger.debug("Message %s inserting to db" % (json.loads(message),))
                     try:
                         await cursor.execute(sql_template, (message,))
                     except Exception as e:

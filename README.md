@@ -54,6 +54,8 @@ if __name__ == '__main__':
 loop.close()
 ```
 
+This library uses [aio_pika](https://aio-pika.readthedocs.io/en/latest/) and [aiopg](https://aiopg.readthedocs.io/en/stable/) packages.
+
 ### Standalone
 You can also call this library as standalone consumer job command.  Just set required environment variables and run `rabbitmq2psql-as-json`. This usecase perfectly fits when you need run it on cronjobs or kubernetes jobs. 
 
@@ -76,4 +78,5 @@ You can also call this library as standalone consumer job command.  Just set req
 
 **Example Kubernetes job:** 
  You can see it to [kube.yaml](kube.yaml)
+
 

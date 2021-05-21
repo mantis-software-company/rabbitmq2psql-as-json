@@ -1,4 +1,3 @@
-
 # rabbitmq2psql-as-json
 
 rabbitmq2psql-as-json is ready to use, basic asynchronous RabbitMQ consumer job library for PostgreSQL. It stops when queue is empty, so it can be useful for cron jobs, unit tests, CI/CD environments and production environments has slow datastream.
@@ -76,7 +75,5 @@ You can also call this library as standalone consumer job command.  Just set req
 -  LOG_LEVEL (Logging level. See: [Python logging module docs](https://docs.python.org/3/library/logging.html#logging-levels))
 
 **Example Kubernetes job:** 
- ```yaml
-# TO DO: Add Kubernetes job here.
- ```
+ You can see it to [kube.yaml](kube.yaml)
 

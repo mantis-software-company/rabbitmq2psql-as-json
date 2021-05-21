@@ -3,7 +3,7 @@ import aiopg
 import asyncio
 import os
 from aio_pika.pool import Pool
-
+from distutils.util import strtobool
 
 async def consume(loop, sql_template=None, logger=None, config=None, consumer_pool_size=10):
     if config is None:
@@ -14,6 +14,7 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
             "mq_user": os.environ.get('MQ_USER'),
             "mq_pass": os.environ.get('MQ_PASS'),
             "mq_queue": os.environ.get('MQ_QUEUE'),
+            "mq_queue_durable": bool(strtobool(os.environ.get('MQ_QUEUE_DURABLE', 'True'))),
             "db_host": os.environ.get('DB_HOST'),
             "db_port": int(os.environ.get('DB_PORT', '5432')),
             "db_user": os.environ.get('DB_USER'),
@@ -66,7 +67,7 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
     async def _consume():
         async with channel_pool.acquire() as channel:
             queue = await channel.declare_queue(
-                config.get("mq_queue"), durable=False, auto_delete=False
+                config.get("mq_queue"), durable=config.get("mq_queue_durable"), auto_delete=False
             )
 
             db_conn = await db_pool.acquire()
@@ -101,6 +102,4 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
             consumer_pool.append(_consume())
 
         await asyncio.gather(*consumer_pool)
-
-
 

@@ -65,6 +65,7 @@ You can also call this library as standalone consumer job command.  Just set req
 - MQ_USER
 - MQ_PASS
 - MQ_QUEUE
+- MQ_QUEUE_DURABLE (optional, default value: True)
 - DB_HOST
 - DB_PORT (optional)
 - DB_USER

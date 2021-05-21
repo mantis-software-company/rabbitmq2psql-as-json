@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: view-stats-consumer-config
+  namespace: mantis
+  labels:
+    app: view-stats-consumer
+    type: config
+    group: consumer
+data:
+  entrypoint.sh: |
+    python -m pip install 'pip==21.0'
+    pip3 install rabbitmq2psql_as_json-1.0.0-py3-none-any
+    rabbitmq2psql-as-json
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app: view-stats-consumer
+    type: config
+    group: consumer
+  name: view-stats-consumer-job
+  namespace: mantis
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "0 */6 * * *"
+  suspend: false
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: view-stats-consumer
+        spec:
+          restartPolicy: Never
+          containers:
+          - command:
+            - /bin/sh
+            - -c
+            - "/bin/sh /config/entrypoint.sh"
+            image: python:3.6
+            env:
+              - name: MQ_HOST
+                value: "<MQ_URL>"
+              - name: MQ_PORT 
+                value: "5672"
+              - name: MQ_VHOST
+                value: "/"
+              - name: MQ_USER
+                value: "mantis"
+              - name: MQ_PASS
+                value: "mantis"
+              - name: MQ_QUEUE
+                value: "view_event"
+              - name: DB_HOST
+                value: "<DBHOST>"
+              - name: DB_PORT 
+                value: "5432"
+              - name: DB_USER
+                value: "<DBUSER>"
+              - name: DB_PASS
+                value: "<DBPASS>"
+              - name: DB_DATABASE
+                value: <DB>
+              - name: SQL_TEMPLATE 
+                value: "insert into viewlog_stats (stats_json) values (%s)"
+              - name: CONSUMER_POOL_SIZE 
+                value: "10"
+              - name: LOG_LEVEL 
+                value: "DEBUG"
+            resources:
+              limits:
+                memory: "512Mi"
+                cpu: "500"
+              requests:
+                  memory: "400Mi"
+                  cpu: "100m"
+            name: view-stats-consumer
+            volumeMounts:
+            - mountPath: /config
+              name: view-stats-consumer-deploy
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: view-stats-consumer-config
+              items:
+                - key: "entrypoint.sh"
+                  path: "entrypoint.sh"
+            name: view-stats-consumer-deploy

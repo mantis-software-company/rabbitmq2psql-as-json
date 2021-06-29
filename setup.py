@@ -4,7 +4,7 @@ setuptools.setup(
     name="rabbitmq2psql-as-json",
     version="0.0.0",
     author="Furkan Kalkan",
-    author_email="info@mantis.com.tr",
+    author_email="furkankalkan@mantis.com.tr",
     description="Asynchronous RabbitMQ consumer job library for PostgreSQL",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

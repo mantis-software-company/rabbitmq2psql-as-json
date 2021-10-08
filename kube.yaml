@@ -54,6 +54,10 @@ spec:
                 value: "mantis"
               - name: MQ_QUEUE
                 value: "view_event"
+              - name: MQ_EXCHANGE
+                value: "view_event"
+              - name: MQ_ROUTING_KEY
+                value: "dead_letter"
               - name: DB_HOST
                 value: "<DBHOST>"
               - name: DB_PORT 

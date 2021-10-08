@@ -17,6 +17,8 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
             "mq_pass": os.environ.get('MQ_PASS'),
             "mq_queue": os.environ.get('MQ_QUEUE'),
             "mq_queue_durable": bool(strtobool(os.environ.get('MQ_QUEUE_DURABLE', 'True'))),
+            "mq_exchange": os.environ.get("MQ_EXCHANGE"),
+            "mq_routing_key": os.environ.get("MQ_ROUTING_KEY"),
             "db_host": os.environ.get('DB_HOST'),
             "db_port": int(os.environ.get('DB_PORT', '5432')),
             "db_user": os.environ.get('DB_USER'),
@@ -35,7 +37,7 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                 consumer_pool_size = int(config.get("consumer_pool_size"))
             except TypeError as e:
                 if logger:
-                    logger.error("Invalid pool size: %s" % (consumer_pool_size,))
+                    logger.error(f"Invalid pool size: {consumer_pool_size}")
                 raise e
 
     db_pool = await aiopg.create_pool(
@@ -66,6 +68,13 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
 
     channel_pool = Pool(get_channel, max_size=consumer_pool_size, loop=loop)
 
+    async def _push_to_dead_letter_queue(message, channel):
+        exchange = await channel.get_exchange(config.get("mq_exchange"))
+        await exchange.publish(
+            message=aio_pika.Message(message.encode("utf-8")),
+            routing_key=config.get("mq_routing_key")
+        )
+
     async def _consume():
         async with channel_pool.acquire() as channel:
             queue = await channel.declare_queue(
@@ -80,14 +89,13 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     m = await queue.get(timeout=5 * consumer_pool_size)
                     message = m.body.decode('utf-8')
                     if logger:
-                        logger.debug("Message %s inserting to db" % (json.loads(message),))
+                        logger.debug(f"Message {json.loads(message)} inserting to db")
                     try:
                         await cursor.execute(sql_template, (message,))
                     except Exception as e:
                         if logger:
-                            logger.error("DB Error: %s" % (e,))
-                        await db_conn.close()
-                        raise e
+                            logger.error(f"DB Error: {e}, pushing message to dead letter queue!")
+                        _push_to_dead_letter_queue(message, channel)
                     else:
                         m.ack()
                 except aio_pika.exceptions.QueueEmpty:
@@ -104,4 +112,3 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
             consumer_pool.append(_consume())
 
         await asyncio.gather(*consumer_pool)
-

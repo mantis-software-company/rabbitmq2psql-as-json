@@ -12,6 +12,7 @@ You can install this library easily with pip.
 ```py
 import os
 import asyncio
+import logging
 from rabbitmq2psql_as_json import consume
 
 if __name__ == '__main__':
@@ -31,7 +32,9 @@ if __name__ == '__main__':
 	  "mq_vhost": os.environ.get('MQ_VHOST'),
 	  "mq_user": os.environ.get('MQ_USER'),
 	  "mq_pass": os.environ.get('MQ_PASS'),
-	  "mq_queue": os.environ.get('MQ_QUEUE'), 
+	  "mq_queue": os.environ.get('MQ_QUEUE'),
+      "mq_exchange": os.environ.get('MQ_EXCHANGE'),
+      "mq_routing_key": os.environ.get('MQ_ROUTING_KEY'),
 	  "db_host": os.environ.get('DB_HOST'),
 	  "db_port": int(os.environ.get('DB_PORT')),
 	  "db_user": os.environ.get('DB_USER'),
@@ -67,14 +70,16 @@ You can also call this library as standalone consumer job command.  Just set req
 - MQ_PASS
 - MQ_QUEUE
 - MQ_QUEUE_DURABLE (optional, default value: True)
+- MQ_EXCHANGE (Exchange for dead letter queue, aka records with error queue)
+- MQ_ROUTING_KEY (Routing key for dead letter queue)
 - DB_HOST
 - DB_PORT (optional)
 - DB_USER
 - DB_PASS
 - DB_DATABASE
 - SQL_TEMPLATE (DB Insert query template. Ex: `insert into logs (body) values (%s);`)
--  CONSUMER_POOL_SIZE (optional, default value: 10)
--  LOG_LEVEL (Logging level. See: [Python logging module docs](https://docs.python.org/3/library/logging.html#logging-levels))
+- CONSUMER_POOL_SIZE (optional, default value: 10)
+- LOG_LEVEL (Logging level. See: [Python logging module docs](https://docs.python.org/3/library/logging.html#logging-levels))
 
 **Example Kubernetes job:** 
  You can see it to [kube.yaml](kube.yaml)

@@ -89,7 +89,7 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                     m = await queue.get(timeout=5 * consumer_pool_size)
                     message = m.body.decode('utf-8')
                     if logger:
-                        logger.debug(f"Message {json.loads(message)} inserting to db")
+                        logger.debug(f"Message {message} inserting to db")
                     try:
                         await cursor.execute(sql_template, (message,))
                     except Exception as e:

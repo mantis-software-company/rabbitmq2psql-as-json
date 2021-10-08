@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="rabbitmq2psql-as-json",
-    version="1.0.2",
+    version="1.0.3",
     author="Furkan Kalkan",
     author_email="furkankalkan@mantis.com.tr",
     description="Asynchronous RabbitMQ consumer job library for PostgreSQL",
@@ -15,7 +15,7 @@ setuptools.setup(
         "Topic :: Internet",
         "Topic :: Software Development",
         "Topic :: Software Development :: Libraries",
-	"Topic :: Software Development :: Testing",
+	    "Topic :: Software Development :: Testing",
         "Intended Audience :: Developers",
         "Operating System :: MacOS",
         "Operating System :: POSIX",

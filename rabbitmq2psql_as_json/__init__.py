@@ -96,8 +96,8 @@ async def consume(loop, sql_template=None, logger=None, config=None, consumer_po
                         if logger:
                             logger.error(f"DB Error: {e}, pushing message to dead letter queue!")
                         _push_to_dead_letter_queue(message, channel)
-                    else:
-                        m.ack()
+                    finally:
+                        await m.ack()
                 except aio_pika.exceptions.QueueEmpty:
                     db_conn.close()
                     if logger:
